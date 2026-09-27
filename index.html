@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GRAB & LOG</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="login-screen" class="screen active">
+    <div class="login-card">
+      <div class="hazard-stripe"></div>
+      <div class="login-logo">
+        <img src="logo.jpg" alt="Logo" class="logo-img" />
+        <div>
+          <div class="logo-title">GRAB & LOG</div>
+          <div class="logo-sub">TOOL ROOM 5.1</div>
+        </div>
+      </div>
+      <h1>Welcome back</h1>
+      <p class="login-desc">Sign in with your work email and PIN to unlock the<br>tool room, inventory, and your next shift.</p>
+
+      <label>OPERATOR EMAIL</label>
+      <input type="email" id="email" placeholder="you@company.com" />
+
+      <label>PIN / PASSWORD</label>
+      <div class="pin-wrap">
+        <span>🔒</span>
+        <input type="password" id="pin" placeholder="••••••••" />
+      </div>
+      <p class="help">Need help? Ask your supervisor for your PIN or reset access.</p>
+
+      <button class="btn-yellow" id="btn-login">Sign in to inventory</button>
+
+      <p class="register">
+        New operator? Create a terminal access request and<br>
+        your supervisor will invite you to the tool room.<br>
+        <a href="#" id="btn-register">Register terminal access</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- REGISTER MODAL -->
+  <div id="register-modal" class="modal hidden">
+    <div class="backdrop" id="reg-backdrop"></div>
+    <div class="modal-box">
+      <h3 style="margin-bottom:6px">Register terminal access</h3>
+      <p class="modal-desc">Create your operator profile.</p>
+
+      <label>FULL NAME</label>
+      <input type="text" id="reg-name" placeholder="Your full name" />
+
+      <label>WORK EMAIL</label>
+      <input type="email" id="reg-email" placeholder="you@company.com" />
+
+      <label>PIN / PASSWORD</label>
+      <input type="password" id="reg-pin" placeholder="Create a PIN" />
+
+      <div class="modal-btns" style="margin-top:18px">
+        <button class="btn-ghost" id="btn-reg-cancel">Cancel</button>
+        <button class="btn-yellow" id="btn-reg-submit" style="width:auto;padding:8px 16px">Submit request</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="screen">
+    <header class="topbar">
+      <div class="brand">
+        <img src="logo.jpg" alt="Logo" class="logo-img sm" />
+        <div>
+          <div class="logo-title">GRAB & LOG</div>
+          <div class="logo-sub">TOOL ROOM 5.1</div>
+        </div>
+      </div>
+      <div class="search">
+        <span>🔍</span>
+        <input type="text" placeholder="Search tool catalog, ID, location..." />
+      </div>
+      <div class="user">
+        <span id="user-name">—</span>
+        <div class="avatar" id="user-avatar">—</div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand sidebar-brand">
+          <img src="logo.jpg" alt="Logo" class="logo-img sm" />
+          <div>
+            <div class="logo-title">GRAB & LOG</div>
+            <div class="logo-sub">TOOL ROOM 5.1</div>
+          </div>
+        </div>
+        <nav>
+          <button class="nav active" data-panel="inventory"><span>📦</span> Inventory</button>
+          <button class="nav" data-panel="logs"><span>📋</span> Activity Logs</button>
+          <button class="nav" data-panel="registry"><span>🚨</span> Control Registry</button>
+          <button class="nav" data-panel="operators"><span>👥</span> Operator Registry</button>
+        </nav>
+        <div class="sidebar-foot">ADMIN MODE · SYSTEM</div>
+      </aside>
+
+      <main class="content">
+        <div id="panel-inventory" class="panel active">
+          <div class="panel-top">
+            <div class="tabs">
+              <button class="tab active" data-filter="all">All Tools (4)</button>
+              <button class="tab" data-filter="available">Available (1)</button>
+              <button class="tab" data-filter="inuse">In Use (1)</button>
+              <button class="tab" data-filter="overdue">Overdue (1)</button>
+            </div>
+            <div class="online"><span class="dot"></span> SYSTEM ONLINE</div>
+          </div>
+          <div class="cards" id="cards"></div>
+        </div>
+
+        <div id="panel-registry" class="panel">
+          <div class="registry-head">
+            <div>
+              <h2>Control Registry</h2>
+              <p>Manage tools, track status, and resolve overdue items.</p>
+            </div>
+            <button class="btn-outline">CONSOLE R-1</button>
+          </div>
+          <div class="critical">
+            <div class="critical-text">
+              <strong>⚠ CRITICAL EXCEPTION DETECTED</strong>
+              <span>Tool Hammer (TD-003) is currently overdue. Action required.</span>
+            </div>
+            <button class="btn-red-sm">ALERT DESK</button>
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="num">4</div><div class="lbl">TOTAL REGISTERED</div></div>
+            <div class="stat"><div class="num">1</div><div class="lbl">CURRENTLY BORROWED</div></div>
+            <div class="stat danger"><div class="num">1</div><div class="lbl">OVERDUE EXCEPTIONS</div></div>
+            <div class="stat"><div class="num">1</div><div class="lbl">DISPOSED / RETIRED</div></div>
+          </div>
+          <div class="table-box">
+            <table>
+              <thead>
+                <tr><th>TOOL</th><th>BAY / LOCATION</th><th>STATUS</th><th></th></tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="panel-logs" class="panel"><h2>Activity Logs</h2></div>
+        <div id="panel-alerts" class="panel"><h2>Alerts Desk</h2></div>
+        <div id="panel-operators" class="panel"><h2>Operator Registry</h2></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- DISPOSE MODAL -->
+  <div id="modal" class="modal hidden">
+    <div class="backdrop" id="dispose-backdrop"></div>
+    <div class="modal-box">
+      <div class="modal-title">
+        <span>⚠</span>
+        <h3>Dispose tool?</h3>
+      </div>
+      <p class="modal-desc">This action is permanent and cannot be undone.</p>
+      <div class="warn">
+        <strong>This action is permanent. The tool will be marked as DISPOSED and removed from the active registry.</strong>
+        <ul>
+          <li>Status changes to DISPOSED and stays in the audit log</li>
+          <li>The disposal event is logged</li>
+          <li>The tool is removed from the active catalog registry</li>
+        </ul>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-ghost" id="btn-cancel">Cancel</button>
+        <button class="btn-red" id="btn-confirm">Confirm Disposal</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
