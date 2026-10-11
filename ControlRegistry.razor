@@ -1,0 +1,71 @@
+@page "/registry"
+@inject AuthService Auth
+@inject ToolService Tools
+@inject NavigationManager Nav
+
+@if (Auth.Current == null) { Nav.NavigateTo("/login"); return; }
+
+<div>
+  <header class="topbar">
+    <div class="brand">
+      <img src="logo.png" class="logo-img sm" alt="Logo" />
+      <div><div class="logo-title">GRAB & LOG</div><div class="logo-sub">TOOL ROOM 5.1</div></div>
+    </div>
+    <div class="user">
+      <span>@Auth.Current.Name</span>
+      <div class="avatar">@Auth.Initials</div>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <nav>
+        <button class="nav-btn" @onclick='() => Nav.NavigateTo("/inventory")'>📦 Inventory</button>
+        <button class="nav-btn active" @onclick='() => Nav.NavigateTo("/registry")'>🚨 Control Registry</button>
+      </nav>
+    </aside>
+    <main class="content">
+      <div class="registry-head">
+        <div><h2>Control Registry</h2><p>Manage tools, track status, and resolve overdue items.</p></div>
+        <button class="btn-outline">CONSOLE R-1</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="num">@Tools.GetAll().Count</div><div class="lbl">TOTAL</div></div>
+        <div class="stat"><div class="num">@Tools.CountByStatus("inuse")</div><div class="lbl">BORROWED</div></div>
+        <div class="stat danger"><div class="num">@Tools.CountByStatus("overdue")</div><div class="lbl">OVERDUE</div></div>
+        <div class="stat"><div class="num">@Tools.CountByStatus("disposed")</div><div class="lbl">DISPOSED</div></div>
+      </div>
+      <div class="table-box">
+        <table>
+          <thead><tr><th>TOOL</th><th>LOCATION</th><th>STATUS</th><th></th></tr></thead>
+          <tbody>
+            @foreach (var t in Tools.GetAll()) {
+              <tr>
+                <td>@t.Icon @t.Name <span style="color:var(--muted);font-size:10px">@t.Id</span></td>
+                <td>@t.Location</td>
+                <td><span class="badge @t.Status">@Label(t.Status)</span></td>
+                <td>
+                  <select class="status-select" value="@t.Status" @onchange="e => Change(t.Id, e.Value?.ToString()??t.Status)">
+                    <option value="available">Available</option>
+                    <option value="inuse">In Use</option>
+                    <option value="overdue">Overdue</option>
+                    <option value="disposed">Disposed</option>
+                  </select>
+                  @if (t.Status != "disposed") {
+                    <button class="btn-dispose" @onclick="() => Tools.Dispose(t.Id)">Dispose</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+@code {
+  void Change(string id, string status) => Tools.SetStatus(id, status);
+  static string Label(string s) => s switch {
+    "available"=>"AVAILABLE","inuse"=>"IN USE","overdue"=>"OVERDUE","disposed"=>"DISPOSED",_=>s.ToUpper()
+  };
+}

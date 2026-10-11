@@ -1,0 +1,61 @@
+@page "/"
+@page "/login"
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<div class="auth-screen">
+  <div class="auth-card">
+    <div class="hazard-stripe"></div>
+    <div class="auth-logo">
+      <img src="logo.png" class="logo-img" alt="Logo" />
+      <div>
+        <div class="logo-title">GRAB & LOG</div>
+        <div class="logo-sub">TOOL ROOM 5.1</div>
+      </div>
+    </div>
+    <h1>Welcome back</h1>
+    <p class="auth-desc">Sign in with your work email and PIN to unlock the tool room.</p>
+    <label>OPERATOR EMAIL</label>
+    <input type="email" @bind="email" placeholder="you@company.com" />
+    <label>PIN / PASSWORD</label>
+    <div class="pin-wrap"><span>🔒</span><input type="password" @bind="pin" placeholder="••••••••" /></div>
+    <button class="btn-yellow" @onclick="SignIn">Sign in to inventory</button>
+    <div class="auth-links">
+      <a href="#" @onclick="OpenReg" @onclick:preventDefault>Register terminal access</a>
+    </div>
+  </div>
+</div>
+
+@if (showReg) {
+  <div class="modal-backdrop" @onclick="() => showReg=false">
+    <div class="modal-box" @onclick:stopPropagation>
+      <h3>Register terminal access</h3>
+      <label>FULL NAME</label>
+      <input @bind="regName" placeholder="Your full name" />
+      <label>WORK EMAIL</label>
+      <input type="email" @bind="regEmail" placeholder="you@company.com" />
+      <label>PIN</label>
+      <input type="password" @bind="regPin" placeholder="Create a PIN" />
+      <div class="modal-btns" style="margin-top:16px">
+        <button class="btn-ghost" @onclick="() => showReg=false">Cancel</button>
+        <button class="btn-yellow" style="width:auto;padding:8px 16px" @onclick="SubmitReg">Submit</button>
+      </div>
+    </div>
+  </div>
+}
+
+@code {
+  string email="", pin="", regName="", regEmail="", regPin="";
+  bool showReg;
+  void OpenReg() => showReg = true;
+  void SubmitReg() {
+    if (Auth.Register(regName, regEmail, regPin)) {
+      email = regEmail; pin = regPin; showReg = false;
+    }
+  }
+  void SignIn() {
+    if (string.IsNullOrWhiteSpace(email)||string.IsNullOrWhiteSpace(pin)) return;
+    Auth.Login(email, pin);
+    Nav.NavigateTo("/inventory");
+  }
+}
