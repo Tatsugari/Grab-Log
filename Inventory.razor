@@ -1,0 +1,124 @@
+@page "/inventory"
+@inject AuthService Auth
+@inject ToolService Tools
+@inject NavigationManager Nav
+
+@if (Auth.Current == null)
+{
+    Nav.NavigateTo("/login");
+    return;
+}
+
+<div>
+    <header class="topbar">
+        <div class="brand">
+            <img src="logo.png" alt="Logo" class="logo-img sm" />
+            <div>
+                <div class="logo-title">GRAB & LOG</div>
+                <div class="logo-sub">TOOL ROOM 5.1</div>
+            </div>
+        </div>
+        <div class="search">
+            <span>🔍</span>
+            <input type="text" placeholder="Search tool catalog, ID, location..." />
+        </div>
+        <div class="user">
+            <span>@Auth.Current.Name</span>
+            <div class="avatar">@Auth.Initials</div>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand sidebar-brand">
+                <img src="logo.png" alt="Logo" class="logo-img sm" />
+                <div>
+                    <div class="logo-title">GRAB & LOG</div>
+                    <div class="logo-sub">TOOL ROOM 5.1</div>
+                </div>
+            </div>
+            <nav>
+                <button class="nav-btn active" @onclick='() => Nav.NavigateTo("/inventory")'><span>📦</span> Inventory</button>
+                <button class="nav-btn" @onclick='() => Nav.NavigateTo("/logs")'><span>📋</span> Activity Logs</button>
+                <button class="nav-btn" @onclick='() => Nav.NavigateTo("/registry")'><span>🚨</span> Control Registry</button>
+                <button class="nav-btn" @onclick='() => Nav.NavigateTo("/operators")'><span>👥</span> Operator Registry</button>
+            </nav>
+            <div class="sidebar-foot">ADMIN MODE · SYSTEM</div>
+        </aside>
+
+        <main class="content">
+            <div class="panel-top">
+                <div class="tabs">
+                    <button class="tab @(filter=="all"?"active":"")" @onclick='() => SetFilter("all")'>All Tools (@Tools.GetAll().Count)</button>
+                    <button class="tab @(filter=="available"?"active":"")" @onclick='() => SetFilter("available")'>Available (@Tools.CountByStatus("available"))</button>
+                    <button class="tab @(filter=="inuse"?"active":"")" @onclick='() => SetFilter("inuse")'>In Use (@Tools.CountByStatus("inuse"))</button>
+                    <button class="tab @(filter=="overdue"?"active":"")" @onclick='() => SetFilter("overdue")'>Overdue (@Tools.CountByStatus("overdue"))</button>
+                </div>
+                <div class="online"><span class="dot"></span> SYSTEM ONLINE</div>
+            </div>
+
+            <div class="cards">
+                @foreach (var t in Tools.Filter(filter))
+                {
+                    <div class="card">
+                        <div class="card-top">
+                            <div>
+                                <div class="card-id">@t.Id</div>
+                                <div class="card-name">@t.Name</div>
+                            </div>
+                            <div class="card-icon">@t.Icon</div>
+                        </div>
+                        <span class="badge @t.Status">@StatusLabel(t.Status)</span>
+                        <div class="card-meta">
+                            <div>STORAGE LOCATION</div>
+                            <div class="val">@t.Location</div>
+                            @if (!string.IsNullOrEmpty(t.LoggedTo))
+                            {
+                                <div style="margin-top:5px">LOGGED: @t.LoggedTo</div>
+                            }
+                        </div>
+                        @if (t.Status == "available")
+                        {
+                            <button class="btn-borrow" @onclick="() => Borrow(t.Id)">BORROW TOOL</button>
+                        }
+                        else if (t.Status is "inuse" or "overdue")
+                        {
+                            <button class="btn-return" @onclick="() => Return(t.Id)">RETURN</button>
+                        }
+                        else
+                        {
+                            <button class="btn-sm" disabled>UNAVAILABLE</button>
+                        }
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+@code {
+    string filter = "all";
+
+    void SetFilter(string f) => filter = f;
+
+    void Borrow(string id)
+    {
+        Tools.Borrow(id, Auth.Current!.Name);
+        StateHasChanged();
+    }
+
+    void Return(string id)
+    {
+        Tools.Return(id);
+        StateHasChanged();
+    }
+
+    static string StatusLabel(string s) => s switch
+    {
+        "available" => "AVAILABLE",
+        "inuse" => "IN USE",
+        "overdue" => "OVERDUE",
+        "disposed" => "DISPOSED",
+        _ => s.ToUpper()
+    };
+}

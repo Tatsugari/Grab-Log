@@ -1,0 +1,54 @@
+@page "/"
+@page "/welcome"
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<div class="auth-screen">
+    <div class="auth-card">
+        <div class="hazard-stripe"></div>
+        <div class="auth-logo">
+            <img src="logo.png" alt="Logo" class="logo-img" />
+            <div>
+                <div class="logo-title">GRAB & LOG</div>
+                <div class="logo-sub">TOOL ROOM 5.1</div>
+            </div>
+        </div>
+
+        <h1>Welcome</h1>
+        <p class="auth-desc">Get started by setting up an account with your work email / email provided by your office.</p>
+
+        <label>PERSONAL EMAIL</label>
+        <input type="email" @bind="email" placeholder="you@company.com" />
+
+        <label>PIN / PASSWORD</label>
+        <div class="pin-wrap">
+            <span>🔒</span>
+            <input type="password" @bind="pin" placeholder="••••••••" />
+        </div>
+        <p class="help">Set up the pin / password you would like to use. Keep it down somewhere if needed.</p>
+
+        <button class="btn-yellow" @onclick="CreateAccount">Create User Account</button>
+
+        <div class="auth-links">
+            Already have an User / Operator Account? Click the highlight text below appropriate to your account type.<br />
+            <a href="/login">Operator Log In ›</a><br />
+            <a href="/login">User Log In ›</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    string email = "";
+    string pin = "";
+
+    void CreateAccount()
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(pin))
+        {
+            // simple guard
+            return;
+        }
+        // For demo we just go to login with values prefilled via query or just navigate
+        Nav.NavigateTo($"/login?email={Uri.EscapeDataString(email)}");
+    }
+}
